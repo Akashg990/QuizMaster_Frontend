@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import Layout from "../components/Layout";
@@ -14,7 +14,7 @@ function QuizAttempt() {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // 🔹 Fetch Questions
+  // Fetch questions
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
@@ -30,10 +30,7 @@ function QuizAttempt() {
     fetchQuestions();
   }, [quizId]);
 
-  // 🔹 Timer Logic
- 
-
-  // 🔹 Select Answer
+  // Select answer
   const handleSelect = (questionId, option) => {
     setAnswers((prev) => {
       const filtered = prev.filter(
@@ -43,8 +40,8 @@ function QuizAttempt() {
     });
   };
 
-  // 🔹 Submit Quiz
-  const handleSubmit = async () => {
+  // Submit quiz
+  const handleSubmit = useCallback(async () => {
     if (submitted) return;
 
     try {
@@ -56,10 +53,8 @@ function QuizAttempt() {
       });
 
       navigate("/result", { state: res.data });
-
     } catch (err) {
       if (err.response && err.response.status === 400) {
-        // Already attempted
         setErrorMessage(
           "You have already attempted this quiz. Redirecting to dashboard..."
         );
@@ -67,14 +62,15 @@ function QuizAttempt() {
         setTimeout(() => {
           navigate("/dashboard");
         }, 5000);
-
       } else {
         setErrorMessage("Something went wrong. Please try again.");
         setSubmitted(false);
       }
     }
-  };
-   useEffect(() => {
+  }, [submitted, answers, quizId, navigate]);
+
+  // Timer logic
+  useEffect(() => {
     if (submitted) return;
 
     if (timeLeft <= 0) {
@@ -87,7 +83,7 @@ function QuizAttempt() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, submitted]);
+  }, [timeLeft, submitted, handleSubmit]);
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = (timeLeft % 60).toString().padStart(2, "0");
@@ -103,12 +99,10 @@ function QuizAttempt() {
           </span>
         </div>
 
-        {/* Error Card */}
+        {/* Error Message */}
         {errorMessage && (
           <div className="mb-6 bg-red-50 border border-red-400 text-red-700 px-6 py-4 rounded-lg shadow-md">
-            <p className="font-medium">
-              ⚠ {errorMessage}
-            </p>
+            <p className="font-medium">⚠ {errorMessage}</p>
           </div>
         )}
 
