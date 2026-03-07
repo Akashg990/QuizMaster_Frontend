@@ -31,20 +31,7 @@ function QuizAttempt() {
   }, [quizId]);
 
   // 🔹 Timer Logic
-  useEffect(() => {
-    if (submitted) return;
-
-    if (timeLeft <= 0) {
-      handleSubmit();
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft, submitted,handleSubmit]);
+ 
 
   // 🔹 Select Answer
   const handleSelect = (questionId, option) => {
@@ -87,6 +74,20 @@ function QuizAttempt() {
       }
     }
   };
+   useEffect(() => {
+    if (submitted) return;
+
+    if (timeLeft <= 0) {
+      handleSubmit();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, submitted]);
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = (timeLeft % 60).toString().padStart(2, "0");
