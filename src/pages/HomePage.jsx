@@ -13,7 +13,7 @@ function HomePage() {
     if (token && document.referrer.includes("/login")) {
       navigate("/dashboard");
     }
-  }, []);
+  }, [navigate]);
   return (
     <>
       <Navbar />

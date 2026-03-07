@@ -44,7 +44,7 @@ function QuizAttempt() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, submitted]);
+  }, [timeLeft, submitted,handleSubmit]);
 
   // 🔹 Select Answer
   const handleSelect = (questionId, option) => {
