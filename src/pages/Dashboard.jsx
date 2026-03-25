@@ -17,6 +17,23 @@ function Dashboard() {
     role = decoded.role;
   }
 
+  const handleDelete = async (quizId) => {
+  const confirmDelete = window.confirm("Are you sure you want to delete this quiz?");
+
+  if (!confirmDelete) return;
+
+  try {
+    await API.delete(`/quiz/${quizId}`);
+
+    // remove from UI instantly
+    setQuizzes((prev) => prev.filter((q) => q._id !== quizId));
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to delete quiz");
+  }
+};
+
   useEffect(() => {
     API.get("/quiz")
       .then((res) => setQuizzes(res.data))
@@ -84,28 +101,32 @@ function Dashboard() {
                   {/* Buttons */}
                   <div className="flex flex-wrap gap-3 mt-2">
 
-                    {!attempted ? (
-                      <Link
-                        to={`/quiz/${quiz._id}`}
-                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition"
-                      >
-                        Start Quiz
-                      </Link>
-                    ) : (
-                      <button
-                        onClick={() =>
-                          navigate("/result", {
-                            state: {
-                              score: attempted.score,
-                              totalQuestions: attempted.totalQuestions,
-                            },
-                          })
-                        }
-                        className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition"
-                      >
-                        View Score
-                      </button>
-                    )}
+                   {role !== "admin" && (
+  <>
+    {!attempted ? (
+      <Link
+        to={`/quiz/${quiz._id}`}
+        className="bg-indigo-600 text-white px-4 py-2 rounded-lg"
+      >
+        Start Quiz
+      </Link>
+    ) : (
+      <button
+        onClick={() =>
+          navigate("/result", {
+            state: {
+              score: attempted.score,
+              totalQuestions: attempted.totalQuestions,
+            },
+          })
+        }
+        className="bg-green-600 text-white px-4 py-2 rounded-lg"
+      >
+        View Score
+      </button>
+    )}
+  </>
+)}
 
                     <Link
                       to={`/leaderboard/${quiz._id}`}
@@ -122,6 +143,14 @@ function Dashboard() {
                         Add Question
                       </Link>
                     )}
+                    {role === "admin" && (
+  <button
+    onClick={() => handleDelete(quiz._id)}
+    className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition"
+  >
+    Delete
+  </button>
+)}
 
                   </div>
                 </div>
